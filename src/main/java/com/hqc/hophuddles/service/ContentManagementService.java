@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hqc.hophuddles.dto.request.*;
 import com.hqc.hophuddles.dto.response.*;
-import com.hqc.hophuddles.dto.response.ContentValidationResult;
 import com.hqc.hophuddles.entity.*;
 import com.hqc.hophuddles.enums.SequenceStatus;
 import com.hqc.hophuddles.exception.ResourceNotFoundException;
@@ -17,7 +16,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
