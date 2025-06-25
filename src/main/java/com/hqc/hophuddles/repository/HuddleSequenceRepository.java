@@ -62,4 +62,17 @@ public interface HuddleSequenceRepository extends JpaRepository<HuddleSequence, 
             "AND hs.agency.agencyId = :agencyId " +
             "AND hs.isActive = true")
     boolean existsByIdAndAgency(@Param("sequenceId") Long sequenceId, @Param("agencyId") Long agencyId);
+
+    // Count sequences by agency and status
+    @Query("SELECT COUNT(hs) FROM HuddleSequence hs " +
+            "WHERE hs.agency.agencyId = :agencyId " +
+            "AND hs.sequenceStatus = :status " +
+            "AND hs.isActive = true")
+    long countByAgencyAndStatus(@Param("agencyId") Long agencyId, @Param("status") SequenceStatus status);
+
+    // Count all active sequences by agency
+    @Query("SELECT COUNT(hs) FROM HuddleSequence hs " +
+            "WHERE hs.agency.agencyId = :agencyId " +
+            "AND hs.isActive = true")
+    long countByAgency(@Param("agencyId") Long agencyId);
 }

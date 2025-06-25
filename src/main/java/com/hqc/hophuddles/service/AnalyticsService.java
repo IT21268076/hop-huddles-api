@@ -1,6 +1,7 @@
 package com.hqc.hophuddles.service;
 
 import com.hqc.hophuddles.dto.response.AnalyticsResponse;
+import com.hqc.hophuddles.entity.EngagementEvent;
 import com.hqc.hophuddles.enums.EventType;
 import com.hqc.hophuddles.enums.ProgressStatus;
 import com.hqc.hophuddles.repository.*;
@@ -34,7 +35,7 @@ public class AnalyticsService {
     public AnalyticsResponse getAgencyAnalyticsSince(Long agencyId, LocalDateTime since) {
         Map<String, Object> metrics = new HashMap<>();
 
-        // Basic counts
+        // Basic counts - using correct method names
         long totalSequences = sequenceRepository.countByAgencyAndStatus(agencyId, com.hqc.hophuddles.enums.SequenceStatus.PUBLISHED);
         long totalUsers = userRepository.countActiveUsersByAgency(agencyId);
         long activeUsers = engagementEventRepository.countActiveUsersByAgencySince(agencyId, since);

@@ -66,4 +66,6 @@ public interface SequenceProgressRepository extends JpaRepository<SequenceProgre
             "AND sp.isActive = true " +
             "ORDER BY sp.averageScore DESC")
     List<SequenceProgress> findTopScoresByAgency(@Param("agencyId") Long agencyId);
+
+
 }

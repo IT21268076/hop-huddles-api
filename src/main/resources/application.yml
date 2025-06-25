@@ -1,4 +1,6 @@
-# src/main/resources/application.yml
+# =======================================
+# Global Configuration
+# =======================================
 spring:
   application:
     name: hop-huddles-api
@@ -6,34 +8,29 @@ spring:
   profiles:
     active: development
 
-  # JPA Configuration for Performance
   jpa:
     hibernate:
       ddl-auto: validate
     show-sql: false
     properties:
       hibernate:
-        # Remember to change this H2Dialect to ServerDialect when production **********************************
+        # ⚠️ Use the correct dialect in production
         dialect: org.hibernate.dialect.H2Dialect
-#        dialect: org.hibernate.dialect.SQLServerDialect
+        #       dialect: org.hibernate.dialect.SQLServerDialect
         format_sql: false
         use_sql_comments: false
-        # Performance optimizations
         jdbc:
           batch_size: 25
           fetch_size: 50
         order_inserts: true
         order_updates: true
         batch_versioned_data: true
-        # Connection pool settings
         connection:
           provider_disables_autocommit: true
-        # Query cache
         cache:
           use_second_level_cache: false
           use_query_cache: false
 
-  # Connection pool for thousands of users
   datasource:
     hikari:
       maximum-pool-size: 20
@@ -43,7 +40,6 @@ spring:
       max-lifetime: 1800000
       leak-detection-threshold: 60000
 
-# Server configuration
 server:
   port: 8080
   servlet:
@@ -53,7 +49,6 @@ server:
   http2:
     enabled: true
 
-# Monitoring
 management:
   endpoints:
     web:
@@ -63,7 +58,6 @@ management:
     health:
       show-details: when-authorized
 
-# Logging
 logging:
   level:
     com.hqc.hophuddles: INFO
@@ -72,8 +66,10 @@ logging:
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
 
----
+# =======================================
 # Development Profile
+# =======================================
+---
 spring:
   config:
     activate:
@@ -95,30 +91,10 @@ spring:
       ddl-auto: create-drop
     show-sql: true
 
-#---
-## Development Profile
-#spring:
-#  config:
-#    activate:
-#      on-profile: development
-#
-#  datasource:
-#    url: jdbc:mysql://localhost:3306/hop_huddles_dev?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
-#    driver-class-name: com.mysql.cj.jdbc.Driver
-#    username: root
-#    password: 8298
-#
-#  jpa:
-#    hibernate:
-#      ddl-auto: create  # Or use 'update' if you want to keep data
-#    show-sql: true
-#    properties:
-#      hibernate:
-#        dialect: org.hibernate.dialect.MySQL8Dialect
-
-
----
+# =======================================
 # Production Profile (Azure SQL)
+# =======================================
+---
 spring:
   config:
     activate:
@@ -130,7 +106,6 @@ spring:
     password: ${AZURE_SQL_PASSWORD}
     driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
 
-# Performance monitoring
 management:
   endpoints:
     web:
@@ -144,18 +119,77 @@ management:
       simple:
         enabled: true
 
-spring.jackson:
-  serialization:
-    indent-output: true
-    write-dates-as-timestamps: false
-  deserialization:
-    fail-on-unknown-properties: false
-  default-property-inclusion: non_null
+# =======================================
+# Auth0 Configuration (Common)
+# =======================================
+auth0:
+  domain: ${AUTH0_DOMAIN:dev-2bcqxbprxonz42ic.us.auth0.com}
+  audience: ${AUTH0_AUDIENCE:https://hop-huddles-api}
+  client-id: ${AUTH0_CLIENT_ID:9fZ7aOnG98gErQumOTbU57wEkYMW8jzq}
+  client-secret: ${AUTH0_CLIENT_SECRET:A7XfvFoiEkc0ltX2CenSVZPF7Wwo3NbELJRVc_1Gr_9dNS9qoAMNg09eJeXpoj6o}
+  management-api-audience: ${AUTH0_MGMT_API_AUDIENCE:https://dev-2bcqxbprxonz42ic.us.auth0.com/api/v2/}
+  management-api-client-id: ${AUTH0_MGMT_CLIENT_ID:ZBIp5Qnb7jUvkEUfF0pa3fgLScxMEmT2}
+  management-api-client-secret: ${AUTH0_MGMT_CLIENT_SECRET:814mVbt_zqWrGjEfRtnnbS6dU-QREUPITWQA-L1WqYGqtQ6lpiLVWTJc5qc1j1Zq}
 
-# Add for better error handling
-server:
-  error:
-    include-message: always
-    include-binding-errors: always
-    include-stacktrace: on_param
-    include-exception: false
+# =======================================
+# Shared Configuration (All Profiles)
+# =======================================
+---
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: https://${auth0.domain}/
+
+app:
+  auth:
+    enabled: false
+    jwt:
+      secret: mySecretKey12345678901234567890123456789012345678901234567890
+      expiration: 86400000
+
+  cors:
+    allowed-origins: http://localhost:3000,http://localhost:3001
+    allowed-methods: GET,POST,PUT,DELETE,OPTIONS
+    allowed-headers: "*"
+
+  file:
+    upload-dir: uploads/
+    max-size: 10485760
+
+---
+spring:
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 10MB
+      max-request-size: 15MB
+
+  mail:
+    host: localhost
+    port: 1025
+    username:
+    password:
+    properties:
+      mail:
+        smtp:
+          auth: false
+          starttls:
+            enable: false
+
+  cache:
+    type: simple
+
+logging:
+  level:
+    com.hqc.hophuddles: DEBUG
+    org.springframework.security: DEBUG
+  pattern:
+    console: "%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html

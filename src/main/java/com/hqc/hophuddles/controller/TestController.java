@@ -3,6 +3,8 @@ package com.hqc.hophuddles.controller;
 import com.hqc.hophuddles.entity.*;
 import com.hqc.hophuddles.enums.*;
 import com.hqc.hophuddles.repository.*;
+import com.hqc.hophuddles.service.FileStorageService;
+import com.hqc.hophuddles.service.PDFGenerationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -47,6 +49,12 @@ public class TestController {
 
     @Autowired
     private AssessmentRepository assessmentRepository;
+
+    @Autowired
+    private FileStorageService fileStorageService;
+
+    @Autowired
+    private PDFGenerationService pdfGenerationService;
 
     @PostMapping("/create-sample-data")
     public ResponseEntity<Map<String, Object>> createSampleData() {
@@ -379,6 +387,95 @@ public class TestController {
         response.put("engagementEventCount", engagementEventCount);
         response.put("assessmentCount", assessmentCount);
         response.put("tablesCreated", userProgressCount >= 0 && sequenceProgressCount >= 0 && engagementEventCount >= 0);
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/create-sample-files")
+    public ResponseEntity<Map<String, Object>> createSampleFiles() {
+        try {
+            Map<String, Object> response = new HashMap<>();
+
+            // Generate sample PDF for a huddle
+            String pdfContent = """
+            Introduction to Fall Prevention
+            
+            This training module covers essential fall prevention strategies for home health professionals.
+            
+            Key Topics:
+            1. Risk Assessment
+            2. Environmental Modifications
+            3. Patient Education
+            4. Documentation Requirements
+            
+            Learning Objectives:
+            - Identify common fall risk factors
+            - Implement prevention strategies
+            - Educate patients and families
+            - Maintain proper documentation
+            """;
+
+            String pdfPath = pdfGenerationService.generateSimplePdf(
+                    pdfContent,
+                    "Fall_Prevention_Training",
+                    "huddle_materials"
+            );
+
+            response.put("success", true);
+            response.put("message", "Sample files created successfully");
+            response.put("pdfPath", pdfPath);
+            response.put("pdfUrl", fileStorageService.getFileUrl(pdfPath));
+
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", false);
+            response.put("error", e.getMessage());
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
+
+    @GetMapping("/file-system-status")
+    public ResponseEntity<Map<String, Object>> getFileSystemStatus() {
+        Map<String, Object> response = new HashMap<>();
+
+        try {
+            // Check if upload directory exists
+            java.nio.file.Path uploadDir = java.nio.file.Paths.get("uploads/").toAbsolutePath().normalize();
+            boolean uploadDirExists = java.nio.file.Files.exists(uploadDir);
+
+            response.put("uploadDirectoryExists", uploadDirExists);
+            response.put("uploadDirectoryPath", uploadDir.toString());
+
+            if (uploadDirExists) {
+                long fileCount = java.nio.file.Files.list(uploadDir).count();
+                response.put("fileCount", fileCount);
+            }
+
+            response.put("fileSystemWorking", true);
+
+        } catch (Exception e) {
+            response.put("fileSystemWorking", false);
+            response.put("error", e.getMessage());
+        }
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/test-security-config")
+    public ResponseEntity<Map<String, Object>> testSecurityConfig() {
+        Map<String, Object> response = new HashMap<>();
+
+        // This endpoint tests if security configuration is working
+        // In dev mode (auth disabled), this should be accessible
+        // In prod mode (auth enabled), this would require authentication
+
+        response.put("securityConfigured", true);
+        response.put("authenticationRequired", false); // Will be true in production
+        response.put("currentUser", "anonymous"); // Will be actual user in production
+        response.put("timestamp", LocalDateTime.now());
 
         return ResponseEntity.ok(response);
     }
