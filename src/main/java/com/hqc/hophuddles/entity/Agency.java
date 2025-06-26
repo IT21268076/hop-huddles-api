@@ -6,10 +6,14 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Setter
+@Getter
 @Entity
 @Table(name = "agencies", indexes = {
         @Index(name = "idx_agency_ccn", columnList = "ccn", unique = true),
@@ -18,6 +22,7 @@ import java.util.List;
 })
 public class Agency extends BaseEntity {
 
+    // Getters and Setters
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "agency_id")
@@ -62,34 +67,6 @@ public class Agency extends BaseEntity {
         this.ccn = ccn;
         this.agencyType = agencyType;
     }
-
-    // Getters and Setters
-    public Long getAgencyId() { return agencyId; }
-    public void setAgencyId(Long agencyId) { this.agencyId = agencyId; }
-
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
-
-    public String getCcn() { return ccn; }
-    public void setCcn(String ccn) { this.ccn = ccn; }
-
-    public AgencyType getAgencyType() { return agencyType; }
-    public void setAgencyType(AgencyType agencyType) { this.agencyType = agencyType; }
-
-    public SubscriptionPlan getSubscriptionPlan() { return subscriptionPlan; }
-    public void setSubscriptionPlan(SubscriptionPlan subscriptionPlan) { this.subscriptionPlan = subscriptionPlan; }
-
-    public String getContactEmail() { return contactEmail; }
-    public void setContactEmail(String contactEmail) { this.contactEmail = contactEmail; }
-
-    public String getContactPhone() { return contactPhone; }
-    public void setContactPhone(String contactPhone) { this.contactPhone = contactPhone; }
-
-    public String getAddress() { return address; }
-    public void setAddress(String address) { this.address = address; }
-
-    public List<UserAssignment> getUserAssignments() { return userAssignments; }
-    public void setUserAssignments(List<UserAssignment> userAssignments) { this.userAssignments = userAssignments; }
 
     // Helper methods
     public void addUserAssignment(UserAssignment assignment) {
