@@ -63,4 +63,28 @@ public interface UserAssignmentRepository extends JpaRepository<UserAssignment, 
             "AND ua.discipline IS NOT NULL " +
             "GROUP BY ua.discipline")
     List<Object[]> countUsersByDisciplineInAgency(@Param("agencyId") Long agencyId);
+
+    List<UserAssignment> findByDisciplineAndIsActiveTrueOrderByUserNameAsc(Discipline discipline);
+
+    List<UserAssignment> findByRoleAndIsActiveTrueOrderByUserNameAsc(UserRole role);
+
+    List<UserAssignment> findByBranchBranchIdAndIsActiveTrueOrderByUserNameAsc(Long branchId);
+
+    List<UserAssignment> findByTeamTeamIdAndIsActiveTrueOrderByUserNameAsc(Long teamId);
+
+    @Query("SELECT ua FROM UserAssignment ua " +
+            "WHERE ua.agency.agencyId = :agencyId " +
+            "AND ua.discipline = :discipline " +
+            "AND ua.isActive = true " +
+            "ORDER BY ua.user.name")
+    List<UserAssignment> findByAgencyAndDiscipline(@Param("agencyId") Long agencyId,
+                                                   @Param("discipline") Discipline discipline);
+
+    @Query("SELECT ua FROM UserAssignment ua " +
+            "WHERE ua.agency.agencyId = :agencyId " +
+            "AND ua.role = :role " +
+            "AND ua.isActive = true " +
+            "ORDER BY ua.user.name")
+    List<UserAssignment> findByAgencyAndRole(@Param("agencyId") Long agencyId,
+                                             @Param("role") UserRole role);
 }
